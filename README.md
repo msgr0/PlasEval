@@ -5,7 +5,6 @@
 Format with orientation:<br/>
 plasmid_1;27+,28-,12+<br/>
 plasmid_2;13-,1+,4+<br/>
-
 Format without orientation:<br/>
 plasmid_1;27,28,12<br/>
 plasmid_2;13,1,4<br/>
@@ -23,6 +22,6 @@ python evaluate_sample.py --pred prediction_file --map mapping_file --out out_di
 
 Additional arguments
 ```
---amb			Argument to indicate if contigs mapped ambiguous sequences should be considered plasmidic. If yes, then pass value 1, else 0.
---ori			Argument to indicate if predicted contig chains have oriented contigs. If yes, then pass value 1, else 0.                           
+--amb		Argument to indicate if contigs mapped ambiguous sequences should be considered plasmidic. If yes, then pass value 1, else 0.
+--ori		Argument to indicate if predicted contig chains have oriented contigs. If yes, then pass value 1, else 0.                           
 ```
