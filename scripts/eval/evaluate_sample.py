@@ -144,8 +144,7 @@ if __name__ == "__main__":
 	for p_id in pred_plasmids:
 		pred_lens[p_id] = 0
 		for c_id in plasmid_dict[p_id]:
-			#Accounting for small contigs (<100 nt) missing from ground truth file
-			if c_id in contig_dict:
+			if c_id in contig_dict:		#Accounting for small contigs (<100 nt) missing from ground truth file
 				t_id = contig_dict[c_id]['map'][0]
 				c_len = contig_dict[c_id]['length']
 				pred_lens[p_id] += c_len
