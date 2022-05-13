@@ -144,16 +144,18 @@ if __name__ == "__main__":
 	for p_id in pred_plasmids:
 		pred_lens[p_id] = 0
 		for c_id in plasmid_dict[p_id]:
-			t_id = contig_dict[c_id]['map'][0]
-			c_len = contig_dict[c_id]['length']
-			pred_lens[p_id] += c_len
-			if t_id == None:
-				if ambiguous == 1:
-					covered_len_df.ix[p_id,'ambiguous'] += c_len
-			else:
-				label = truth_dict[t_id]['label'][0]
-				if label == 'plasmid':
-					covered_len_df.ix[p_id,t_id] += c_len			
+			#Accounting for small contigs (<100 nt) missing from ground truth file
+			if c_id in contig_dict:
+				t_id = contig_dict[c_id]['map'][0]
+				c_len = contig_dict[c_id]['length']
+				pred_lens[p_id] += c_len
+				if t_id == None:
+					if ambiguous == 1:
+						covered_len_df.ix[p_id,'ambiguous'] += c_len
+				else:
+					label = truth_dict[t_id]['label'][0]
+					if label == 'plasmid':
+						covered_len_df.ix[p_id,t_id] += c_len			
 
 	#Precision df
 	prec_df = covered_len_df.copy()
