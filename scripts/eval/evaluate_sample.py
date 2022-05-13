@@ -22,15 +22,22 @@ def parse_line(line):
 	label = line[6]
 	return c_id, c_len, t_id, t_len, label
 
-def create_entry(seq_dict, seq_id, seq_len, map_id, label):
+def create_entry(seq_dict, seq_id, seq_len, map_id, label, unlabelled):
 	seq_dict[seq_id] = {}
+	
+	if label == 'no_label':
+		label = 'ambiguous'
+		seq_dict[seq_id]['length'] = 0
+		unlabelled[seq_id] = int(seq_len)
+	else:
+		seq_dict[seq_id]['length'] = int(seq_len)	
 	seq_dict[seq_id]['label'] = [label]
-	seq_dict[seq_id]['length'] = int(seq_len)
+		
 	if label == 'ambiguous':
 		seq_dict[seq_id]['map'] = [None]
 	else:
 		seq_dict[seq_id]['map'] = [map_id]	
-	return seq_dict				
+	return seq_dict, unlabelled				
 
 def update_mapping(seq_dict, seq_id, map_id, label):
 	if label == 'ambiguous':
@@ -71,7 +78,7 @@ if __name__ == "__main__":
 	###################################
 	contig_dict = {}	#Key: contig ID, Values: List of true sequences mapped to, List of true sequences labels, contig length
 	truth_dict = {}		#Key: sequence ID, Values: List of contigs mapped to, sequence label, sequence length
-
+	unlabelled = {}		#Key: no_label contig ID, Values: Length
 	chr_list, pl_list = [], []
 
 	string_list = read_file(mapping_file)
@@ -79,31 +86,33 @@ if __name__ == "__main__":
 		c_id, c_len, t_id, t_len, label = parse_line(line)
 		label = label[:-1]
 		if c_id not in contig_dict:
-			contig_dict = create_entry(contig_dict, c_id, c_len, t_id, label)
+			contig_dict, unlabelled = create_entry(contig_dict, c_id, c_len, t_id, label, unlabelled)
 		else:
 			contig_dict = update_mapping(contig_dict, c_id, t_id, label)
 			contig_dict = update_labels(contig_dict, c_id, label)
 
 		if t_id not in truth_dict:	 
 			if label != 'ambiguous':
-				truth_dict = create_entry(truth_dict, t_id, t_len, c_id, label)
+				truth_dict, unlabelled = create_entry(truth_dict, t_id, t_len, c_id, label, unlabelled)
 			if label == 'chromosome':
 				chr_list.append((t_id, int(t_len)))
 			elif label == 'plasmid':
 				pl_list.append((t_id, int(t_len)))
 		else:
-			truth_dict = update_mapping(truth_dict, t_id, c_id, label)
-
+			truth_dict = update_mapping(truth_dict, t_id, c_id, label)		
+			
 	######################################
 	# Storing input from prediction file #
 	######################################
-	plasmid_dict = {}	#Key: pred. plasmid ID, Values: 
+	plasmid_dict = {}	#Key: pred. plasmid ID, Values: Contig chain
+	unlabelled_lens = {}
 	n_pred = 0
 	string_list = read_file(prediction_file)
 	for line in string_list:
 		line = line.split(';')
 		p_id = line[0]
 		plasmid_dict[p_id] = []
+		unlabelled_lens[p_id] = 0
 		n_pred += 1
 		chain = line[1].split(',')
 		for c_id in chain:
@@ -111,6 +120,8 @@ if __name__ == "__main__":
 				if ori_used == 1:
 					c_id = c_id[:-1]	
 				plasmid_dict[p_id].append(c_id)	
+				if c_id in unlabelled:
+					unlabelled_lens[p_id] += unlabelled[c_id]
 
 	#########################################
 	# Comparing true and predicted plasmids #
@@ -147,7 +158,10 @@ if __name__ == "__main__":
 	#Precision df
 	prec_df = covered_len_df.copy()
 	for p_id in pred_plasmids:
-		prec_df.loc[p_id] = prec_df.loc[p_id].div(pred_lens[p_id])	
+		if pred_lens[p_id] > 0:
+			prec_df.loc[p_id] = prec_df.loc[p_id].div(pred_lens[p_id])	
+		else:
+			prec_df.loc[p_id] = 0	
 
 	#Recall df
 	rec_df = covered_len_df.copy()
@@ -177,7 +191,11 @@ if __name__ == "__main__":
 	results_file.write("No. of predicted plasmids: "+ str(len(pred_lens.keys())) +"\n")
 	for p_id in pred_lens:
 		p_len = pred_lens[p_id]
-		results_file.write(p_id + ": " + str(p_len)+ " nt\n")
+		unlabelled_len = unlabelled_lens[p_id]
+		if unlabelled_len == 0:
+			results_file.write(p_id + ": " + str(p_len)+ " nt\n")
+		else:
+			results_file.write(p_id + ": " + str(p_len)+ " nt" + " ( + "+str(unlabelled_len)+ " nt in unlabelled contigs )\n")	
 	results_file.write("\n")	
 
 	results_file.write("> predicted plasmid covers <proportion> of reference plasmid\n")
@@ -213,7 +231,7 @@ if __name__ == "__main__":
 				results_file.write(p_id+ " <-> "+t_id+"\n")
 				empty = False
 	if empty:
-		out.write("none\n")
+		results_file.write("none\n")
 	results_file.write("\n")
 
 	results_file.write("> summary scores\n")
