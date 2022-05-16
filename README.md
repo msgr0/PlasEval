@@ -44,8 +44,9 @@ A text file that contains the following information about the evaluation of a pa
 Format:<br/>
 Plasmid_ID	Contig_ID 	Contig_Length<br/>
 
-To generate the input in the desired format from the HyAsP output, we use the 'putative_plasmid_contigs.fasta' file. Format:<br/>
-'>'Contig_ID|x_plasmid_ID<br/>
+To generate the input in the desired format from the HyAsP output, we use the 'putative_plasmid_contigs.fasta' file.<br/> 
+Format:<br/>
+>Contig_ID|x_plasmid_ID <br/>
 Contig_sequence
 
 #### Usage
