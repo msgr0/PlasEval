@@ -42,9 +42,18 @@ A text file that contains the following information about the evaluation of a pa
 ### Input
 1. Two .tsv files with predicted / reference plasmids as sets of contigs. The file should contain one chain per line.<br/>
 Format:<br/>
-Plasmid_ID	Contig_ID 	Contig_Length
+Plasmid_ID	Contig_ID 	Contig_Length<br/>
 
-3. Path to output directory and name of output file.
+To generate the input in the desired format from the HyAsP output, we use the 'putative_plasmid_contigs.fasta' file. Format:<br/>
+'>'Contig_ID|x_plasmid_ID<br/>
+Contig_sequence
+
+#### Usage
+```
+python format_input_v2.py --i input_dir/putative_plasmid_contigs.fasta --o output_dir --f formatted_file.tsv
+```
+
+2. Path to output directory and name of output file.
 
 #### Usage
 ```
