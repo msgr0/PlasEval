@@ -46,8 +46,15 @@ Plasmid_ID	Contig_ID 	Contig_Length<br/>
 
 To generate the input in the desired format from the HyAsP output, we use the 'putative_plasmid_contigs.fasta' file.<br/> 
 Format:<br/>
->Contig_ID|x_plasmid_ID <br/>
+>Contig_ID|x_plasmid_plasmid_ID <br/>
 Contig_sequence
+
+For instance:<br/>
+>23|0_plasmid_1 <br/>
+ACGTGACGTGAC <br/>
+>35|1_plasmid_1 <br/>
+CGTAGTCAGTCA <br/>
+
 
 #### Usage
 ```
