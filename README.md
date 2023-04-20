@@ -2,6 +2,7 @@
 
 ## Evaluation script
 ### Input
+NOTE: TO BE CHANGED TO A SIMPLER FORMAT
 1. A file with predicted contig chains with or without orientations. The file should contain one chain per line.<br/>
 Format with orientation:<br/>
 plasmid_1;27+,28-,12+<br/>
