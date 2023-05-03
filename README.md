@@ -76,3 +76,4 @@ A log file that contains the following information for each possible labelling c
 3. Total length of contigs that are unique to one set of plasmids and half the total length of contigs that are common but grouped differently in both sets of plasmids,<br/>
 4. Labelling of contigs in both sets of plasmids,<br/>
 5. Splits in both sets of plasmids
+
