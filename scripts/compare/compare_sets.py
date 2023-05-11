@@ -136,7 +136,7 @@ def one_side_cost(side, side_dict, opp_dict, B, flag):
 	return side_len, side_cost
 
 #Compute total cost of splits and joins for a particular matching
-def compute_current_cost(left_dict, right_dict):
+def compute_match_cost(left_dict, right_dict):
 	#Create graph with vertices named according to permutation and obtain connected components
 	B = nx.Graph()
 	B = add_nodes(B, left_dict, right_dict)
@@ -167,6 +167,21 @@ def compute_current_cost(left_dict, right_dict):
 			total_cost += left_cost + right_cost
 	return total_cost
 
+#Compute cost of matching for reached contigs
+def compute_current_cost(matching, left_plasmids, right_plasmids, pls_ids):
+	left_renamed, right_renamed = rename_by_pmutn(matching, left_plasmids, right_plasmids, pls_ids)
+	left_ctg_ids, right_ctg_ids = set(), set()
+	for x in left_renamed:
+		left_ctg_ids.update(set(left_renamed[x].keys()))
+	for x in right_renamed:
+		right_ctg_ids.update(set(right_renamed[x].keys()))
+	common_contigs = left_ctg_ids.intersection(right_ctg_ids)	
+	#Delete contigs unique to a single tool
+	left_renamed, left_only_len = remove_unique_contigs(left_renamed, common_contigs)
+	right_renamed, right_only_len = remove_unique_contigs(right_renamed, common_contigs)	
+	return compute_match_cost(left_renamed, right_renamed)
+
+
 def run_compare_plasmids(left_plasmids, right_plasmids):
 	#Creating a dictionary with contigs as keys from dictionary of plasmids and contig lengths and sequences as values.
 	left_contigs = create_contigs_dict(left_plasmids)
@@ -192,8 +207,6 @@ def run_compare_plasmids(left_plasmids, right_plasmids):
 
 		permutations = generate_permutations(contig, m, n, permutations)
 
-	
-
 	### BNB ###
 	current_state = {'level': 0, 'cost': 0, 'matching': {}}
 	final_state = {'cost': max_cost, 'matching': {}}
@@ -201,7 +214,7 @@ def run_compare_plasmids(left_plasmids, right_plasmids):
 	contig_list = list(common_contigs)
 	sorted_contig_list = sorted(contig_list, key=lambda ctg:len(permutations[ctg]))
 
-	def recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids):
+	def recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids, pm_idx):
 		nonlocal final_state
 		
 		if current_state['level'] >= len(sorted_contig_list):
@@ -209,36 +222,28 @@ def run_compare_plasmids(left_plasmids, right_plasmids):
 			final_state['matching'] = copy.deepcopy(current_state['matching'])
 			#print(final_state['cost'])
 			current_state['level'] -= 1
-
 		else: 		#Compute cost upto this level
 			print("\n") 
 			print(current_state['level'], sorted_contig_list[current_state['level']])
 			current_contig = sorted_contig_list[current_state['level']]
-			#current_level = current_state['level']
-			for i in range(len(permutations[current_contig])):
-				current_state['matching'][current_contig] = permutations[current_contig][i]
-				left_renamed, right_renamed = rename_by_pmutn(current_state['matching'], left_plasmids, right_plasmids, pls_ids)
-				left_ctg_ids, right_ctg_ids = set(), set()
-				for x in left_renamed:
-					left_ctg_ids.update(set(left_renamed[x].keys()))
-				for x in right_renamed:
-					right_ctg_ids.update(set(right_renamed[x].keys()))
-				common_contigs = left_ctg_ids.intersection(right_ctg_ids)	
-				#Delete contigs unique to a single tool
-				left_renamed, left_only_len = remove_unique_contigs(left_renamed, common_contigs)
-				right_renamed, right_only_len = remove_unique_contigs(right_renamed, common_contigs)	
-				current_state['cost'] = compute_current_cost(left_renamed, right_renamed)
+			#for i in range(len(permutations[current_contig])):
+		
+			current_state['matching'][current_contig] = permutations[current_contig][pm_idx]
+			current_state['cost'] = compute_current_cost(current_state['matching'], left_plasmids, right_plasmids, pls_ids)		
 
-				if current_state['cost'] < final_state['cost']:
-					print(current_state['cost'], final_state['cost'])
-					#if current_level < len(sorted_contig_list):
-					#	current_state['level'] += 1 
-					current_state['level'] += 1 
-					recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids)
-				#else:
-				#	current_state['level'] -= 1
+			if current_state['cost'] < final_state['cost']:
+				print(current_state['cost'], final_state['cost'])
+				current_state['level'] += 1 
+				pm_idx = 0
+				recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids, pm_idx)
+			elif pm_idx < len(permutations[current_contig]):
+				pm_idx += 1
+				recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids, pm_idx)
+			else:
+				current_state['level'] -= 1
 
-	recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids)
+	pm_idx = 0
+	recursive_compare(current_state, permutations, sorted_contig_list, left_plasmids, right_plasmids, pls_ids, pm_idx)
 
 	print(final_state['cost'])
 	print(final_state['matching'])
