@@ -3,8 +3,18 @@ import networkx as nx
 import itertools
 import copy
 from math import factorial
+from collections import defaultdict
 #import random
 #from bidict import bidict
+
+'''
+TODO: 
+add many more comments on method: long doctsring at the beginning of the file;
+revisit variable names and function names; 
+maintain consistency in naming variables and functions;
+document input and output of every function;
+code factorization with appropriate function names.
+'''
 
 #Generate list of permutations by contig family
 def generate_permutations(m, n):
@@ -70,21 +80,20 @@ def add_nodes(G, left_list, right_list, pls_ids):
 
 #Adds edges to the bipartite graph G
 def add_edges(G, left_list, right_list, pls_ids):
-	left_ctgs_by_pls = {}
-	right_ctgs_by_pls = {}
 	
-	for x in left_list:
-		ctg, pls = x[0], pls_ids['L'].inv[x[1]]
-		if pls not in left_ctgs_by_pls:
-			left_ctgs_by_pls[pls] = []
-		left_ctgs_by_pls[pls].append(ctg)
-
-	for x in right_list:
-		ctg, pls = x[0], pls_ids['R'].inv[x[1]]
-		if pls not in right_ctgs_by_pls:
-			right_ctgs_by_pls[pls] = []
-		right_ctgs_by_pls[pls].append(ctg)		
-
+	def list_ctg_ids_by_pls(pls_ids_dict ctg_ids_list):
+		'''
+		For a given dictionary of plasmids and list of contig ids, ...
+		'''
+		ctg_ids_by_pls = defaultdict(list)
+		for x in cg_ids_list:
+			ctg_id, pls_id = x[0], pls_ids_dict.inv[x[1]]
+			ctg_ids_by_pls[pls_id].append(ctg_id)
+		return ctg_ids_by_pls
+	
+	left_ctg_ids_by_pls = list_ctg_ids_by_pls(pls_ids['L'], left_list)
+	right_ctg_ids_by_pls = list_ctg_ids_by_pls(pls_ids['R'], right_list)
+	
 	edges_list = []
 	for left_plasmid in left_ctgs_by_pls:
 		for right_plasmid in right_ctgs_by_pls:
@@ -125,6 +134,7 @@ def one_side_cost(side, side_list, opp_list, B, flag, pls_ids, contigs_dict):
 	side_ctgs_by_pls = {}
 	opp_ctgs_by_pls = {}
 	
+	# TO DO: Code factorization
 	[s, o] = ['L', 'R'] if flag == 0 else ['R', 'L']
 	for x in side_list:
 		ctg, pls = x[0], pls_ids[s].inv[x[1]]
@@ -161,33 +171,17 @@ def compute_match_cost(left_list, right_list, pls_ids, contigs_dict):
 	B = add_edges(B, left_list, right_list, pls_ids)
 	A = [B.subgraph(c) for c in nx.connected_components(B)]
 
-	left_pls = set([pls_ids['L'].inv[x[1]] for x in left_list])
-	right_pls = set([pls_ids['R'].inv[x[1]] for x in right_list])
-
 	n_conn_comp = len(list(A))
 	total_cost = 0		
 
 	for i in range(n_conn_comp):
 		C = list(A)[i]
 		left, right = nx.bipartite.sets(C)	#Split the component according to bipartite sets
-		#Assign the split sets to the correct tool (as the bipartite split is random)
-		temp = []
-		if len(list(right)) != 0 and list(right)[0] in left_pls:
-			temp = right
-			right = left
-			left = temp
-		if len(list(left)) != 0 and list(left)[0] in right_pls:
-			temp = right
-			right = left
-			left = temp		
-		if len(list(left)) == 0:	#If right side plasmid forms a singleton vertex	
-			plasmid = list(right)[0]
-		elif len(list(right)) == 0:	#If left side plasmid forms a singleton vertex
-			plasmid = list(left)[0]
-		else:						#If component has vertices from both sides
-			left_len, left_cost = one_side_cost(left, left_list, right_list, B, 0, pls_ids, contigs_dict)
-			right_len, right_cost = one_side_cost(right, right_list, left_list, B, 1, pls_ids, contigs_dict)
-			total_cost += left_cost + right_cost
+		if len(list(right)) != 0 and list(right)[0] in left_pls: #Ensuring proper assignments of bipartite parts
+			right,left = left,right
+		left_len, left_cost = one_side_cost(left, left_list, right_list, B, 0, pls_ids, contigs_dict)
+		right_len, right_cost = one_side_cost(right, right_list, left_list, B, 1, pls_ids, contigs_dict)
+		total_cost += left_cost + right_cost
 	return total_cost
 
 #Compute cost of matching for reached contigs
@@ -230,7 +224,7 @@ def run_compare_plasmids(left_plasmids, right_plasmids, contigs_dict, pls_ids_di
 	contig_list = list(common_contigs)
 	sorted_contig_list = sorted(contig_list, key=lambda ctg: n_permutations[ctg])
 
-	print(sorted_contig_list)
+	#print(sorted_contig_list)
 
 	def recursive_compare(current_state, sorted_contig_list, left_plasmids, right_plasmids, pls_ids_dict, contigs_dict):
 		nonlocal final_state
@@ -250,7 +244,6 @@ def run_compare_plasmids(left_plasmids, right_plasmids, contigs_dict, pls_ids_di
 				current_state['cost'] = compute_current_cost(current_state['matching'], left_plasmids, right_plasmids, pls_ids_dict, contigs_dict)	
 				print(current_state['level'], sorted_contig_list[current_state['level']], perm, current_state['cost'],final_state['cost'])
 
-
 				if current_state['cost'] < final_state['cost']:	
 					current_state['level'] += 1 
 					recursive_compare(current_state, sorted_contig_list, left_plasmids, right_plasmids, pls_ids_dict, contigs_dict)
@@ -267,3 +260,59 @@ def run_compare_plasmids(left_plasmids, right_plasmids, contigs_dict, pls_ids_di
 
 	print(final_state['cost'])
 	print(final_state['matching'])
+	
+# Proposed solution avoiding nonlocal variables
+	
+def run_compare_plasmids(left_plasmids, right_plasmids, contigs_dict, pls_ids_dict):
+	
+	#Common contigs in the solutions obtained from both tools
+	left_ctg_ids = set([ctg for ctg in contigs_dict.keys() if len(contigs_dict[ctg]['L_copies']) >= 1])
+	right_ctg_ids = set([ctg for ctg in contigs_dict.keys() if len(contigs_dict[ctg]['R_copies']) >= 1])
+	common_contigs = left_ctg_ids.intersection(right_ctg_ids)
+
+	max_cost = 0		#Computing upperbound on final_cost
+	n_permutations = {}
+	for contig in common_contigs:
+		m = len(contigs_dict[contig]['L_copies'])
+		n = len(contigs_dict[contig]['R_copies'])
+		max_cost += m * contigs_dict[contig]['length']
+		max_cost += n * contigs_dict[contig]['length']	
+		n_permutations[contig] = int(factorial(n)/factorial(n-m)) if n > m else int(factorial(m)/factorial(m-n))
+
+	### BNB ###
+	current_state = {'level': 0, 'cost': 0, 'matching': {}}
+	final_state = {'cost': max_cost, 'matching': {}}
+
+	contig_list = list(common_contigs)
+	sorted_contig_list = sorted(contig_list, key=lambda ctg: n_permutations[ctg])
+
+	def recursive_compare(current_state, sorted_contig_list, left_plasmids, right_plasmids, pls_ids_dict, contigs_dict, best_cost):
+		best_sol_in_subtree = None
+		if current_state['level'] < len(sorted_contig_list):				#Compute cost upto this level
+			current_contig = sorted_contig_list[current_state['level']]		#Retrieve contig for current level
+
+			print(current_state['level'], sorted_contig_list[current_state['level']])
+			
+			m = len(contigs_dict[current_contig]['L_copies'])
+			n = len(contigs_dict[current_contig]['R_copies'])			
+			permutations = generate_permutations(m,n)
+
+			for perm in permutations:
+				matching = get_matching_from_perm(contigs_dict[current_contig], perm)
+				current_state['matching'][current_contig] = matching
+				current_state['cost'] = compute_current_cost(current_state['matching'], left_plasmids, right_plasmids, pls_ids_dict, contigs_dict)	
+				print(current_state['level'], sorted_contig_list[current_state['level']], perm, current_state['cost'],final_state['cost'])
+
+				if current_state['cost'] < final_state['cost']:	
+					current_state['level'] += 1 
+					best_sol_in_subtree = recursive_compare(current_state, sorted_contig_list, left_plasmids, right_plasmids, pls_ids_dict, contigs_dict, best_cost)
+					current_state['level'] -= 1
+				
+				del current_state['matching'][current_contig]
+
+		else:
+			return copy.deepcopy(current_state)
+			print(current_state['cost'])
+
+	optimal_solution = recursive_compare(current_state, sorted_contig_list, left_plasmids, right_plasmids, pls_ids_dict, contigs_dict, max_cost)
+
