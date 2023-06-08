@@ -123,6 +123,7 @@ def get_partition_cost(node, partitions, plasmids):
 #Compute total cost on one side (splits or joins)
 def one_side_cost(side, side_dict, opp_dict, B, flag):
 	side_len, side_cost = 0, 0
+	print(side)
 	for node in side:
 		partitions = [set(side_dict[node].keys())]
 		for edge in B.edges:
@@ -142,6 +143,7 @@ def compute_match_cost(left_dict, right_dict):
 	B = nx.Graph()
 	B = add_nodes(B, left_dict, right_dict)
 	B = add_edges(B, left_dict, right_dict)
+	print(B.edges)
 	A = [B.subgraph(c) for c in nx.connected_components(B)]
 	n_conn_comp = len(list(A))
 	total_cost = 0						
