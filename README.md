@@ -1,20 +1,22 @@
 # PlasEval
 ## Comparison script
 ### Input
-1. Two .tsv files with predicted / reference plasmids as sets of contigs. The file should contain one chain per line.<br/>
+1. Two TSV files with predicted / reference plasmids as sets of contigs. The file should contain one chain per line.<br/>
 Format:<br/>
 Plasmid_ID	Contig_ID 	Contig_Length<br/>
-2. Path to output directory and name of output file.
+2. Path to output file and log file.
 
 #### Usage
 ```
-python plasmid_comparison_main.py --l left_plasmids.tsv --r right_plasmids.tsv --out out_dir --res out_file
+python plasmid_comparison_main.py --l LEFT_BINS_TSV --r RIGHT_BINS_TSV --out_file OUT_FILE --log_file LOG_FILE
 ```
+where `l` and `r` are TSV files, each with one set of plasmid bins. `out_file` is the path to the output file while `log_file` is the path to the log file.
 
 ### Output
-A log file that contains the following information for each possible labelling combination. The combinations are listed in increasing order of the dissimilarity score.:<br\>
-1. Combination number,<br/>
-2. Dissimilarity score,<br/>
-3. Total length of contigs that are unique to one set of plasmids and half the total length of contigs that are common but grouped differently in both sets of plasmids,<br/>
-4. Labelling of contigs in both sets of plasmids,<br/>
-5. Splits in both sets of plasmids
+The output file contains the following information:<br\>
+1. Cumulative length of contigs present in at least one of set of plasmid bins,<br/>
+2. Cost of cuts: splitting bins from first set of plasmid bins,<br/>
+3. Cost of joins: splitting bins from second set of plasmid bins,<br/>
+4. Cumulative length of contigs present only in the first set,<br/>
+5. Cumulative length of contigs present only in the second set,<br/>
+6. Dissimilarity score
