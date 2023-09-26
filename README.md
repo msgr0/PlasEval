@@ -1,9 +1,15 @@
 # PlasEval
 ## Comparison script
 ### Input
-1. Two TSV files with predicted / reference plasmids as sets of contigs. The file should contain one chain per line.<br/>
-Format:<br/>
-Plasmid_ID	Contig_ID 	Contig_Length<br/>
+1. Two TSV files with predicted / reference plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
+plasmid	contig 	contig_len<br/>
+P1	C1 	2000<br/>
+P1	C2 	3000<br/>
+P2	C1 	2000<br/>
+P2	C3	4000<br/>
+P2	C1	2000<br/>
+...<br/>
+
 2. Path to output file and log file.
 
 #### Usage
