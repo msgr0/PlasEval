@@ -8,15 +8,6 @@ import logging
 import psutil
 import time
 
-'''
-TODO: 
-add many more comments on method: long docstring at the beginning of the file;
-revisit variable names and function names; 
-maintain consistency in naming variables and functions;
-document input and output of every function;
-code factorization with appropriate function names.
-'''
-
 logger = logging.getLogger(__name__)
 
 def generate_matchings(m, n):
