@@ -167,7 +167,7 @@ def compute_splits_cost(pls_ids, side_contig_copies, opp_contig_copies, B, flag,
 		flag (binary): variable to indicate if side is left or right
 		Dictionaries of plasmids and contigs
 	Returns:
-		Total cost of splits (cuts or joins) for one plasmid set
+		Total cost of splits (cuts OR joins) for one plasmid set
 	'''
 	def get_ctg_list_by_pls(contig_copies, pls_ids_dict, side):
 		'''
@@ -280,7 +280,6 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 		sorted_contig_list = sorted(contig_list, key=lambda ctg: n_matchings[ctg])
 
 		count = [0]
-		memory_usage = psutil.virtual_memory()
 
 		def recursive_compare(current_state, sorted_contig_list, pls_ids_dict, contigs_dict, count):
 			'''
@@ -295,7 +294,7 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 				Final state dictionary (non local variable)
 			'''
 			nonlocal final_state
-			count[0] += 1
+			#count[0] += 1
 			if current_state['level'] < len(sorted_contig_list):				#Compute cost upto current level
 				current_contig = sorted_contig_list[current_state['level']]		#Retrieve contig for current level				
 				m = len(contigs_dict[current_contig]['L_copies'])
@@ -304,6 +303,7 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 				for matching in matchings:
 					matched_posns = get_matching_positions(contigs_dict[current_contig], matching)
 					current_state['matching'][current_contig] = matched_posns
+					count[0] += 1
 					current_state['cuts_cost'], current_state['joins_cost'] \
 						= compute_current_cost(current_state['matching'], pls_ids_dict, contigs_dict)
 					current_state['total_cost'] = current_state['cuts_cost'] + current_state['joins_cost']
@@ -321,14 +321,15 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 		
 		end_time = time.time()
 		logger.info(f'Time taken: {end_time - start_time}')
-		logger.info(f'Memory usage: {memory_usage.used}')	
+		logger.info(f'Number of function calls: {count[0]}')	
 		
 		total_len, unique_left_cost, unique_right_cost = 0, 0, 0
 		for c in contigs_dict:
 			l_copies, r_copies = len(contigs_dict[c]['L_copies']), len(contigs_dict[c]['R_copies'])
 			ctg_len = contigs_dict[c]['length']
-			unique_left_cost += max(l_copies - r_copies, 0) * ctg_len
-			unique_right_cost += max(r_copies - l_copies, 0) * ctg_len
+			if min(l_copies, r_copies) == 0:
+				unique_left_cost += max(l_copies - r_copies, 0) * ctg_len
+				unique_right_cost += max(r_copies - l_copies, 0) * ctg_len
 			total_len += max(l_copies, r_copies) * ctg_len
 
 		dissimilarity = (unique_left_cost + unique_right_cost + final_state['total_cost']/2)/total_len
