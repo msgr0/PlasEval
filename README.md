@@ -20,7 +20,7 @@ In addition to the two plasmid bin files, the evaluate mode requires the followi
 	c. Length threshold: Contigs below the length threshold are excluded from the computation of precision and recall. This is an optional input with a default value of 0. 
 #### Usage
 ```
-python evaluate_bins.py --pred PREDICTED_BINS_TSV --gt GROUNDTRUTH_BINS_TSV --out OUT_DIR --res OUT_FILE --thlen LEN_THRESHOLD
+python eval/evaluate_bins.py --pred PREDICTED_BINS_TSV --gt GROUNDTRUTH_BINS_TSV --out OUT_DIR --res OUT_FILE --thlen LEN_THRESHOLD
 ```
 where `pred` and `gt` are TSV files, with the set of predicted and ground truth plasmid bins respecitvely. `out` is the path to the output directory while `res` is the name of the output file. `thlen` is the integer length threshold as mentioned above.
 
@@ -29,7 +29,7 @@ In addition to the two plasmid bin files, the compare mode requires the path to 
 
 #### Usage
 ```
-python plasmid_comparison_main.py --l LEFT_BINS_TSV --r RIGHT_BINS_TSV --out_file OUT_FILE --log_file LOG_FILE
+python compare/plasmid_comparison_main.py --l LEFT_BINS_TSV --r RIGHT_BINS_TSV --out_file OUT_FILE --log_file LOG_FILE
 ```
 where `l` and `r` are TSV files, each with one set of plasmid bins. `out_file` is the path to the output file while `log_file` is the path to the log file.
 
