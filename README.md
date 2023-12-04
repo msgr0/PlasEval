@@ -34,13 +34,13 @@ python compare/plasmid_comparison_main.py --l LEFT_BINS_TSV --r RIGHT_BINS_TSV -
 where `l` and `r` are TSV files, each with one set of plasmid bins. `out_file` is the path to the output file while `log_file` is the path to the log file.
 
 ### Output
-1. The output file for the evaluate mode contains the following information:<br\>
+1. The output file for the evaluate mode contains the following information:<br/>
 	a. Number and names of predicted plasmid bins <br/>
 	b. Precision details: For each predicted bin, for both contig level and basepair level precision, the name of the best matched ground truth bin and the corresponding precision values <br/> 
 	c. Recall details: For each ground truth bin, for both contig level and basepair level recall, the name of the best matched predicted plasmid bin and the corresponding recall values <br/> 
 	d. Overall contig level and basepair level statistics
 
-2. The output file for the compare mode contains the following information:<br\>
+2. The output file for the compare mode contains the following information:<br/>
 	a. Cumulative length of contigs present in at least one of set of plasmid bins,<br/>
 	b. Cost of cuts: splitting bins from first set of plasmid bins,<br/>
 	c. Cost of joins: splitting bins from second set of plasmid bins,<br/>
