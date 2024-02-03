@@ -1,79 +1,49 @@
 # PlasEval
+PlasEval is a tool designed for evaluating the results of plasmid binning methods. It has two modes: evaluate and compare. 
+1. Evaluate: This mode takes the predicted plasmid bins as well as the ground truth plasmid bins as input. It then computes the precision and recall statistics for each predicted plasmid bin and ground truth bin respectively. <br/>
+2. Compare: This mode compares two sets of plasmid bins. It computes a dissimilarity score between the two sets of plasmid bins by transforming one of the sets into the other using a sequence of splits and joins. 
 
-## Evaluation script
 ### Input
-NOTE: TO BE CHANGED TO A SIMPLER FORMAT
-1. A file with predicted contig chains with or without orientations. The file should contain one chain per line.<br/>
-Format with orientation:<br/>
-plasmid_1;27+,28-,12+<br/>
-plasmid_2;13-,1+,4+<br/>
-Format without orientation:<br/>
-plasmid_1;27,28,12<br/>
-plasmid_2;13,1,4<br/>
+1. The main input in both modes are the two plasmid bin files. These are two TSV files with predicted / ground truth plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
+plasmid	contig 	contig_len<br/>
+P1	C1 	2000<br/>
+P1	C2 	3000<br/>
+P2	C1 	2000<br/>
+P2	C3	4000<br/>
+P2	C1	2000<br/>
+...<br/>
 
-2. A file that maps a contig to a plasmid, chromosome or ambiguous sequence with one contig per line. <br/>
-Format:<br/>
-short_read_contig_id,short_read_contig_length,mapped_against_hybrid_contig_id,hybrid_contig_length,number_of_residue_matches,is_circular,label
+2. Evaluate mode: <br/>
+In addition to the two plasmid bin files, the evaluate mode requires the following input:
+	a. Path to output directory
+	b. Name of output file
+	c. Length threshold: Contigs below the length threshold are excluded from the computation of precision and recall. This is an optional input with a default value of 0. 
+#### Usage
+```
+python eval/evaluate_bins.py --pred PREDICTED_BINS_TSV --gt GROUNDTRUTH_BINS_TSV --out OUT_DIR --res OUT_FILE --thlen LEN_THRESHOLD
+```
+where `pred` and `gt` are TSV files, with the set of predicted and ground truth plasmid bins respecitvely. `out` is the path to the output directory while `res` is the name of the output file. `thlen` is the integer length threshold as mentioned above.
 
-3. Path to output directory and name of output file.
+3. Compare mode: <br/>
+In addition to the two plasmid bin files, the compare mode requires the path to output file and log file as input.
 
 #### Usage
 ```
-python evaluate_sample.py --pred prediction_file --map mapping_file --out out_dir --res out_file --amb 0/1 --ori 0/1
+python compare/plasmid_comparison_main.py --l LEFT_BINS_TSV --r RIGHT_BINS_TSV --out_file OUT_FILE --log_file LOG_FILE
 ```
-
-Additional arguments
-```
---amb		Argument to indicate if contigs mapped ambiguous sequences should be considered plasmidic. If yes, then pass value 1, else 0.
---ori		Argument to indicate if predicted contig chains have oriented contigs. If yes, then pass value 1, else 0.                           
-```
+where `l` and `r` are TSV files, each with one set of plasmid bins. `out_file` is the path to the output file while `log_file` is the path to the log file.
 
 ### Output
-A text file that contains the following information about the evaluation of a particular prediction.<br/>
-1. No. of references chromosomes and plasmids and their respective lengths,<br/>
-2. No. of predicted plasmids and their respective lengths,<br/>
-3. Matrix with proportion of reference plasmid covered by predicted plasmid,<br/>
-4. Matrix with proportion of predicted plasmid covered by reference plasmid,<br/>
-5. Overall covered proportion of predicted plasmids,<br/>
-6. Overall covered proportion of reference plasmids,<br/>
-7. Pairs of predicted and reference plasmids with covered proprtion over a specific threshold in both directions,<br/>
-8. Precision, recall and F1 score<br/>
+1. The output file for the evaluate mode contains the following information:<br/>
+	a. Number and names of predicted plasmid bins <br/>
+	b. Precision details: For each predicted bin, for both contig level and basepair level precision, the name of the best matched ground truth bin and the corresponding precision values <br/> 
+	c. Recall details: For each ground truth bin, for both contig level and basepair level recall, the name of the best matched predicted plasmid bin and the corresponding recall values <br/> 
+	d. Overall contig level and basepair level statistics
 
-## Comparison script
-### Input
-1. Two .tsv files with predicted / reference plasmids as sets of contigs. The file should contain one chain per line.<br/>
-Format:<br/>
-Plasmid_ID	Contig_ID 	Contig_Length<br/>
-
-To generate the input in the desired format from the HyAsP output, we use the 'putative_plasmid_contigs.fasta' file.<br/> 
-Format:<br/>
->Contig_ID|x_plasmid_plasmid_ID <br/>
-Contig_sequence
-
-For instance:<br/>
->23|0_plasmid_1 <br/>
-ACGTGACGTGAC <br/>
->35|1_plasmid_1 <br/>
-CGTAGTCAGTCA <br/>
-
-
-#### Usage
-```
-python format_input_v2.py --i input_dir/putative_plasmid_contigs.fasta --o output_dir --f formatted_file.tsv
-```
-
-2. Path to output directory and name of output file.
-
-#### Usage
-```
-python plasmid_comparison_main.py --l left_plasmids.tsv --r right_plasmids.tsv --out out_dir --res out_file
-```
-
-### Output
-A log file that contains the following information for each possible labelling combination. The combinations are listed in increasing order of the dissimilarity score.:<br\>
-1. Combination number,<br/>
-2. Dissimilarity score,<br/>
-3. Total length of contigs that are unique to one set of plasmids and half the total length of contigs that are common but grouped differently in both sets of plasmids,<br/>
-4. Labelling of contigs in both sets of plasmids,<br/>
-5. Splits in both sets of plasmids
-
+2. The output file for the compare mode contains the following information:<br/>
+	a. Cumulative length of contigs present in at least one of set of plasmid bins,<br/>
+	b. Cost of cuts: splitting bins from first set of plasmid bins,<br/>
+	c. Cost of joins: splitting bins from second set of plasmid bins,<br/>
+	d. Cumulative length of contigs present only in the first set,<br/>
+	e. Cumulative length of contigs present only in the second set,<br/>
+	f. Dissimilarity score
