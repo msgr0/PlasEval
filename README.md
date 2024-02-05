@@ -1,6 +1,12 @@
 # PlasEval
 
+**TO DO**: quick intro
+
+## Plasmid binning
+
 **TO DO [cc]**: quick description of plasmid binning
+
+## Plasmid binning evaluation
 
 PlasEval is a tool designed for evaluating the results of plasmid binning methods. It has two modes: evaluate and compare. 
 1. Evaluate: This mode takes a set of predicted plasmid bins as well as a set of ground truth plasmid bins as input. It then computes the precision and recall statistics for each predicted plasmid bin and ground truth bin respectively. <br/>
@@ -8,8 +14,11 @@ PlasEval is a tool designed for evaluating the results of plasmid binning method
 
 **TO DO [cc]**: quick description of the dissimilarity.
 
-### Input
-1. The main input in both modes are the two plasmid bin files. These are two TSV files with predicted / ground truth plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
+## Usage
+
+### Input: plasmid bins file
+
+The main input in both modes are the two plasmid bin files. These are two TSV files with predicted / ground truth plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
 plasmid	contig 	contig_len<br/>
 P1	C1 	2000<br/>
 P1	C2 	3000<br/>
@@ -18,11 +27,13 @@ P2	C3	4000<br/>
 P2	C1	2000<br/>
 ...<br/>
 
-2. Evaluate mode: <br/>
-In addition to the two plasmid bin files, the evaluate mode requires the following input:
-	a. Path to output directory
-	b. Name of output file
-	c. Length threshold: Contigs below the length threshold are excluded from the computation of precision and recall. This is an optional input with a default value of 0. 
+### Input: numeric parameters
+
+Length threshold: Contigs below the length threshold are excluded from the computation of precision and recall. This is an optional input with a default value of 0. 
+Maximum number of calls.
+
+### Input: output files
+
 #### Usage
 ```
 python eval/evaluate_bins.py --pred PREDICTED_BINS_TSV --gt GROUNDTRUTH_BINS_TSV --out OUT_DIR --res OUT_FILE --thlen LEN_THRESHOLD
