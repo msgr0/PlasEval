@@ -1,7 +1,12 @@
 # PlasEval
+
+**TO DO [cc]**: quick description of plasmid binning
+
 PlasEval is a tool designed for evaluating the results of plasmid binning methods. It has two modes: evaluate and compare. 
-1. Evaluate: This mode takes the predicted plasmid bins as well as the ground truth plasmid bins as input. It then computes the precision and recall statistics for each predicted plasmid bin and ground truth bin respectively. <br/>
-2. Compare: This mode compares two sets of plasmid bins. It computes a dissimilarity score between the two sets of plasmid bins by transforming one of the sets into the other using a sequence of splits and joins. 
+1. Evaluate: This mode takes a set of predicted plasmid bins as well as a set of ground truth plasmid bins as input. It then computes the precision and recall statistics for each predicted plasmid bin and ground truth bin respectively. <br/>
+2. Compare: This mode compares two sets of plasmid bins. It computes a dissimilarity score between the two sets of plasmid bins based on transforming one of the sets into the other using a sequence of splits and joins, weighted by contigs length.
+
+**TO DO [cc]**: quick description of the dissimilarity.
 
 ### Input
 1. The main input in both modes are the two plasmid bin files. These are two TSV files with predicted / ground truth plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
