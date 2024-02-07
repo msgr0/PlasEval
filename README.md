@@ -1,7 +1,3 @@
----
-output: html_document
----
-
 # PlasEval
 
 PlasEval is a tool aimed at evaluating the accuracy and at comparing methods for the problem of **plasmid binning**.
@@ -17,7 +13,7 @@ The result of applying a plasmid binning method to a draft assembly is a set of 
 ### Evaluation
 In the **evaluation** mode of PlasEval, given a set of *predicted plasmid bins* resulting from a plasmid binning tools and a *ground truth* set of plasmid bins, where each true plasmid bin contains all the contigs that belong to one of the plasmid present in the sequenced isolate, PlasEval computes three statistics, the *precision*, the *recall* and the *F1-score* of the predicted plasmid bins with respect to the ground truth.
 
-For a group $X$ of contigs, we denote by $L(X)$ the cumulated length of the contigs in $X$. 
+For a group $`X`$ of contigs, we denote by $`L(X)`$ the cumulated length of the contigs in $`X`$. 
 For a predicted plasmid bin $P$ and a ground truth plasmid bin $T$, we define the *overlap* between $P$ and $T$, denoted by $o(P,T)$, as the cumulated length of the contigs presents in both $P$ and $T$.
 Given a set $A$ of predicted plasmid bins and a set $B$ of ground truth plasmid bins, w define the precision $p(A,B)$ and recall $r(A,B)$ as follows:
 $$p(A,B) = \frac{\sum\limits_{P\in A} \max\limits_{T\in B} o(P,T)}{\sum\limits_{P\in A}L(P)}, r(A,B) = \frac{\sum\limits_{T\in B} \max\limits_{P\in A} o(P,T)}{\sum\limits_{T\in B}L(T)}.$$  
