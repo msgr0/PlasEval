@@ -18,7 +18,7 @@ For a predicted plasmid bin $P$ and a ground truth plasmid bin $T$, we define th
 Given a set $A$ of predicted plasmid bins and a set $B$ of ground truth plasmid bins, w define the precision $p(A,B)$ and recall $r(A,B)$ as follows:
 $$p(A,B) = \frac{\sum\limits_{P\in A} \max\limits_{T\in B} o(P,T)}{\sum\limits_{P\in A}L(P)}, r(A,B) = \frac{\sum\limits_{T\in B} \max\limits_{P\in A} o(P,T)}{\sum\limits_{T\in B}L(T)}.$$  
 
-The F1-score as the arithmetic mean of the precision and recall
+The F1-score is the arithmetic mean of the precision and recall
 $$F_1(A,B) = 2\frac{{p}(A,B){r}(A,B)}{{p}(A,B)+{r}(A,B)}.$$  
 
 ### Comparison
@@ -46,14 +46,21 @@ $$\sum\limits_{P\in A}\sum\limits_{c\in P} \ell(c)^{\alpha} + \sum\limits_{Q\in 
 
 ### Input: plasmid bins file
 
-The main input in both modes are the two plasmid bin files. These are two TSV files with predicted / ground truth plasmids as sets of contigs. The file should have a header row with the column names, specifically the plasmid name, contig id and contig length, as shown in the example below. The file should contain one contig per line with contig information provided under the respective columns. The file can contain other information as long as the three columns mentioned above are provided.<br/>
-plasmid	contig 	contig_len<br/>
-P1	C1 	2000<br/>
-P1	C2 	3000<br/>
-P2	C1 	2000<br/>
-P2	C3	4000<br/>
-P2	C1	2000<br/>
-...<br/>
+The main input in both modes ofPlasEval are the two plasmid bins files. 
+A plasmid bins file is a TSV file that describes a set of plasmids bins in a forma where each row contains three pieces of information: the identifier of a plasmid bin, the identifier of a contig that belongs to this plasmid bin and the length of the contig.
+The file should have a header row with column names 'plasmid', 'contig' 'contig_len'. 
+An example is provided below that describes the set of plasmid bins where bin 'P1' contains contigs 'C1,C2' and bin 'P2' contains contigs 'C1', 'C3' and 'C4'.
+'''
+plasmid	contig 	contig_len
+P1	C1 	2000
+P2	C3 	3000
+P1	C2 	2000
+P2	C1	2000
+P2	C4	2000
+'''
+
+If a contig appears in several copies in a plasmid bin, only one copy is accounted for.
+Other information can be included in the TSV file, but will not be accounted for by PlasEval.
 
 ### Input: numeric parameters
 
