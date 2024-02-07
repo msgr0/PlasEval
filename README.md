@@ -71,10 +71,9 @@ Other information can be included in the TSV file, but will not be accounted for
 
 ### Input: numeric parameters
 
-Length threshold: Contigs below the length threshold are excluded from the computation of precision and recall. This is an optional input with a default value of 0. 
-Maximum number of calls.
+In both evaluation and comparison mode, PlasEval takes an extra optional parameter `len_threshold`: every contig of length below the value `len_threshold` is discarded from both sets of considered plasmid bins. This parameter is useful in comparison mode in the case of plasmid bins sets that contain many short repeated contigs, which can result in the branch-and-bound algorithm taking a long time to complete.
 
-### Input: output files
+In comparison mode, the value of $\alpha$ can be set, although by default it takes value $0.5$.
 
 #### Usage
 ```
