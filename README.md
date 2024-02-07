@@ -11,7 +11,7 @@ The result of applying a plasmid binning method to a draft assembly is a set of 
 ## Plasmid binning evaluation and comparison
 
 ### Evaluation
-In its **evaluation** mode of PlasEval, given a set of *predicted plasmid bins* resulting from a plasmid binning tools and a *ground truth* set of plasmid bins, where each true plasmid bin contains all the contigs that belong to one of the plasmid present in the sequenced isolate, PlasEval computes three statistics, the *precision*, the *recall* and the *F1-score* of the predicted plasmid bins with respect to the ground truth.
+In the **evaluation** mode of PlasEval, given a set of *predicted plasmid bins* resulting from a plasmid binning tools and a *ground truth* set of plasmid bins, where each true plasmid bin contains all the contigs that belong to one of the plasmid present in the sequenced isolate, PlasEval computes three statistics, the *precision*, the *recall* and the *F1-score* of the predicted plasmid bins with respect to the ground truth.
 
 For a group $X$ of contigs, we denote by $L(X)$ the cumulated length of the contigs in $X$. 
 For a predicted plasmid bin $P$ and a ground truth plasmid bin $T$, we define the *overlap* between $P$ and $T$, denoted by $o(P,T)$, as the cumulated length of the contigs presents in both $P$ and $T$.
@@ -22,11 +22,26 @@ The F1-score as the arithmetic mean of the precision and recall
 $$F_1(A,B) = 2\frac{{p}(A,B){r}(A,B)}{{p}(A,B)+{r}(A,B)}.$$  
 
 ### Comparison
-1. Evaluate: This mode takes a set of predicted plasmid bins as well as a set of ground truth plasmid bins as input. It then computes the precision and recall statistics for each predicted plasmid bin and ground truth bin respectively. <br/>
-2. Compare: This mode compares two sets of plasmid bins. It computes a dissimilarity score between the two sets of plasmid bins based on transforming one of the sets into the other using a sequence of splits and joins, weighted by contigs length.
+In the **comparison** mode of PlasEval, given two sets of *predicted plasmid bins* (either resulting from two plasmid binning tools or from a plasmid binning tool and a ground truth), PlasEval computes three statistics, PlasEval computes a *dissimilarity measure* that indictaes how much both sets of predicted plasmid bins are in agreement. 
+The full details of the dissimilarity measure computed by PlasEval are available in the preprint <a href="">PlasEval: a framework for comparing and evaluating plasmid binning tools</a> and we describe below its general principle.
+The dissimilariy value is the sum of 4 terms accounting respectively for
+- *extra contigs*: the contigs present in $A$ but not in $B$;
+- *missing contigs*: the contigs present in $B$ but not in $A$;
+- *splits*: splitting of the plasmid bins of $A$ to obtain a set of intermediate bins defined as the intersection of $A$ and $B$;
+- *joins*: joining the splitted plasmid bins into the plasmid bins of $B$.
 
-**TO DO [cc]**: quick description of the dissimilarity.
+Each of these components incur a *cost*, parameterized by a parameter $\alpha \in [0,1]$:
+- each extra or missing contig $c$ results in a cost $\ell(c)^\alpha$, where $\ell(c)$ is the length of $c$;
+- each split of a plasmid bin $P$ into two smaller bins $P',P''$ results in a cost $\min(L(P')^\alpha,L(P'')^\alpha$;
+- each join of two intermediate plasmid bins $P',P''$ into  larger bin $P$ results in a cost $\min(L(P')^\alpha,L(P'')^\alpha$.  
+So with $\alpha=0$, the length of contigs is not accounted for and only set-theoretic operations define the dissimilarity value, while with $\alpha=1$ it is fully accounted for.
+By default $\alpha=0.5$.
 
+In the case where some contigs are *repeated*, i.e. a contig appears in more than one plasmid bin of $A$ and/or $B$, a *branch-and-bound* algorithm computes the pairing between repeats contigs in and in $B$ that results in the minimum dissimilarity value.
+
+Finally the dissimilarity obtained as described above is *normalized* into a value in $[0,1]$ by dividing it by 
+$$\sum\limits_{P\in A}\sum\limits_{c\in P} \ell(c)^{\alpha} + \sum\limits_{Q\in B}\sum\limits_{c\in Q} \ell(c)^{\alpha}.$$
+  
 ## Usage
 
 ### Input: plasmid bins file
