@@ -48,16 +48,16 @@ $$\sum\limits_{P\in A}\sum\limits_{c\in P} \ell(c)^{\alpha} + \sum\limits_{Q\in 
 
 The main input in both modes ofPlasEval are the two plasmid bins files. 
 A plasmid bins file is a TSV file that describes a set of plasmids bins in a forma where each row contains three pieces of information: the identifier of a plasmid bin, the identifier of a contig that belongs to this plasmid bin and the length of the contig.
-The file should have a header row with column names 'plasmid', 'contig' 'contig_len'. 
-An example is provided below that describes the set of plasmid bins where bin 'P1' contains contigs 'C1,C2' and bin 'P2' contains contigs 'C1', 'C3' and 'C4'.
-'''
+The file should have a header row with column names `plasmid`, `contig`, `contig_len`. 
+An example is provided below that describes the set of plasmid bins where bin `P1` contains contigs `C1,C2` and bin `P2` contains contigs `C1`, `C3` and `C4`.
+```
 plasmid	contig 	contig_len
 P1	C1 	2000
 P2	C3 	3000
 P1	C2 	2000
 P2	C1	2000
 P2	C4	2000
-'''
+```
 
 If a contig appears in several copies in a plasmid bin, only one copy is accounted for.
 Other information can be included in the TSV file, but will not be accounted for by PlasEval.
