@@ -16,7 +16,7 @@ In its **evaluation** mode of PlasEval, given a set of *predicted plasmid bins* 
 For a group $X$ of contigs, we denote by $L(X)$ the cumulated length of the contigs in $X$. 
 For a predicted plasmid bin $P$ and a ground truth plasmid bin $T$, we define the *overlap* between $P$ and $T$, denoted by $o(P,T)$, as the cumulated length of the contigs presents in both $P$ and $T$.
 Given a set $A$ of predicted plasmid bins and a set $B$ of ground truth plasmid bins, w define the precision $p(A,B)$ and recall $r(A,B)$ as follows:
-$$p(A,B) = \frac{\sum\limits_{P\inA} \max\limits_{T\inB} o(P,T)}{\sum\limits_{P\inA}L(P)}, r(A,B) = \frac{\sum\limits_{T\inB} \max\limits_{P\inA} o(P,T)}{\sum\limits_{T\inB}L(T)},$$
+$$p(A,B) = \frac{\sum\limits_{P\in A} \max\limits_{T\in B} o(P,T)}{\sum\limits_{P\in A}L(P)}, r(A,B) = \frac{\sum\limits_{T\in B} \max\limits_{P\in A} o(P,T)}{\sum\limits_{T\in B}L(T)},$$
 and the F1-score as the arithmetic mean of the precision and recall
 $$F_1(A,B) = 2\frac{{p}(A,B){r}(A,B)}{{p}(A,B)+{r}(A,B)}.$$
 
