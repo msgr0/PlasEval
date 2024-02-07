@@ -1,3 +1,7 @@
+---
+output: html_document
+---
+
 # PlasEval
 
 PlasEval is a tool aimed at evaluating the accuracy and at comparing methods for the problem of **plasmid binning**.
