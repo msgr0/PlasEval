@@ -38,7 +38,7 @@ Each of these components incur a *cost*, parameterized by a parameter $`\alpha \
 - each extra or missing contig $`c`$ results in a cost $`\ell(c)^\alpha`$, where $`\ell(c)`$ is the length of $`c`$;
 - each split of a plasmid bin $`P`$ into two smaller bins $`P',P''`$ results in a cost $`\min(L(P')^\alpha,L(P'')^\alpha)`$;
 - each join of two intermediate plasmid bins $`P',P''`$ into  larger bin $`P`$ results in a cost $`\min(L(P')^\alpha,L(P'')^\alpha)`$.
-- 
+ 
 So with $`\alpha=0`$, the length of contigs is not accounted for and only set-theoretic operations define the dissimilarity value, while with $`\alpha=1`$ it is fully accounted for.
 By default $`\alpha=0.5`$.
 
