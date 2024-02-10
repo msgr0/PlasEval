@@ -1,21 +1,14 @@
 #!/usr/bin/python
 
 from __future__ import division
-import argparse
 import pandas as pd
-
+import os
 from log_errors_utils import (
 	check_file,
 	create_directory
 )
 
 def eval_bins(pred_dict, pls_dict, len_dict, th_len, eval):
-	eval.write("##### predictions #####\n")
-	eval.write(">number of predicted plasmids: %i\n" % len(pred_dict))
-	for pred in pred_dict:
-		eval.write(pred+"\n")
-	eval.write("\n")
-
 	#Following functions are used to compute precision and recall,
 	#	for each predicted bin and true plasmid bin respectively
 	def create_bin_entry():
@@ -138,8 +131,8 @@ def eval_bins(pred_dict, pls_dict, len_dict, th_len, eval):
 			ovr_len_stat = ovr_details['ovr_len_common']/ovr_details['ovr_len_total']	
 		return ovr_n_stat, ovr_len_stat
 	
-	eval.write("###Precision details###\n")
-	eval.write('>Precision: Proportion of correctedly identified contigs for each prediction\n')
+	eval.write("#Precision: Proportion of correctedly identified contigs for each prediction\n")
+	eval.write(">Precision details\n")
 	eval.write("#Predicted_bin\tUnwtd_Precision\tUnwtd_Reference_plasmid\tWtd_Precision\tWtd_Reference_plasmid\n")
 	ovr_details = {'ovr_n_common': 0, 'ovr_len_common': 0, 'ovr_n_total': 0, 'ovr_len_total': 0}
 	for bin_id in precision:
@@ -151,8 +144,8 @@ def eval_bins(pred_dict, pls_dict, len_dict, th_len, eval):
 
 	eval.write("\n")
 
-	eval.write("###Recall details###\n")
-	eval.write('>Recall: Proportion of correctedly identified contigs for each reference\n')
+	eval.write("#Recall: Proportion of correctedly identified contigs for each reference\n")
+	eval.write(">Recall details\n")
 	eval.write("#Reference_plasmid\tUnwtd_Recall\tUnwtd_Predicted_bin\tWtd_Recall\tWtd_Predicted_bin\n")
 	ovr_details = {'ovr_n_common': 0, 'ovr_len_common': 0, 'ovr_n_total': 0, 'ovr_len_total': 0}
 	ovr_n_rec, ovr_len_rec = 0, 0
@@ -171,8 +164,9 @@ def eval_bins(pred_dict, pls_dict, len_dict, th_len, eval):
 	if (ovr_len_prec + ovr_len_rec) != 0:
 		len_f1 = 2*ovr_len_prec*ovr_len_rec / (ovr_len_prec + ovr_len_rec)		
 	
-	eval.write("###Overall details###\n")
-	eval.write('>Final statistics (Unwtd and Wtd):\n')
+	eval.write("#Final statistics (Unwtd and Wtd)\n")
+	eval.write(">Overall details\n")
+	eval.write("#Overall_statistic\tUnwtd_statistic\tWtd_statistic\n")
 	eval.write('Precision\t' + str(ovr_n_prec) + '\t' + str(ovr_len_prec) + '\n')
 	eval.write('Recall\t' + str(ovr_n_rec) + '\t' + str(ovr_len_rec) + '\n')
 	eval.write('F1\t' + str(n_f1)  + '\t' + str(len_f1) + '\n')
@@ -198,33 +192,23 @@ def get_bin_details(len_dict, bins_file):
 			pls_dict[plasmid].append(contig)
 	return pls_dict, len_dict
 
-if __name__ == "__main__":
-	#Parsing arguments
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--pred", help="Path to predictions")
-	parser.add_argument("--gt", help="Path to contig to plasmid mapping file")
-	parser.add_argument("--thlen", nargs='?', type=int, default=0, \
-					 help="Length threshold of contigs to consider in evaluation")
-	parser.add_argument("--out", help="Path to output dir")
-	parser.add_argument("--res", help="Name of output file")
-	args = parser.parse_args()
-
-	pred_file = args.pred
-	gt_file = args.gt
-	th_len = args.thlen
+def eval_mode(pred_file, gt_file, min_len, output_file):
+	'''
+	Reads prediction and ground truth files
+	Initializes dictionaries and stores prediction and ground truth bins
+	Initializes and populates a dictionary of contig lengths 
+	Calls the eval_bins function to compute the precision and recall statistics
+	'''
 	for in_file in [pred_file, gt_file]:
 		check_file(in_file)
-	output_dir = args.out
+	output_dir = os.path.dirname(output_file)
 	create_directory([output_dir])
-	output_file = args.res
-	eval_file = open(output_dir+'/'+output_file, "w")
-
+	eval_file = open(output_file, "w")
 	#Reading data and saving it to a dictionary with plasmids as keys and a nested dictionary of contigs as values
 	len_dict = {}
 	pred_dict, len_dict = get_bin_details(len_dict, pred_file)
 	gt_dict, len_dict = get_bin_details(len_dict, gt_file)
-
-	eval_bins(pred_dict, gt_dict, len_dict, th_len, eval_file)
+	eval_bins(pred_dict, gt_dict, len_dict, min_len, eval_file)
 
 			
 
