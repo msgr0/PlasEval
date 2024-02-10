@@ -72,7 +72,7 @@ If a contig appears in several copies in a plasmid bin, the evaluation mode only
 
 In both evaluation and comparison mode, PlasEval takes an extra optional parameter `min_len`: every contig of length below the value `min_len` is discarded from both sets of considered plasmid bins. This parameter is useful in comparison mode in the case of plasmid bins sets that contain many short repeated contigs, which can result in the branch-and-bound algorithm taking a long time to complete.
 
-The comparison mode uses two more parameters. Firstly, the value of $\alpha$ can be passed as a parameter, although by default it takes value $0.5$. Secondly, the maximum number of recursive calls used in the branch and bound can also be set by the user. If the number of recursion calls is exceeded, the comparison is stopped. In such instances, the comparison mode can be rerun with a higher length threshold. The default value for the maximum number of recursive calls is $10000000$.
+The comparison mode uses two more parameters. Firstly, the value of $\alpha$ can be passed as a parameter `p`, although by default it takes value $0.5$. Secondly, the maximum number of recursive calls used in the branch and bound can also be set by the user. If the number of recursion calls is exceeded, the comparison is stopped. In such instances, the comparison mode can be rerun with a higher length threshold. The default value for the maximum number of recursive calls (`max_calls`) is $10000000$.
 
 #### Usage
 1. The following command is used for the evaluation mode: 
