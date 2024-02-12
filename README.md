@@ -110,20 +110,24 @@ A few toy examples to demonstrate the use of PlasEval have been provided in the 
 
 1. The following command evaluates predicted plasmid bins (`pred_bins_1.tsv`) against the ground truth plasmid bins (`gt_bins_1.tsv`). Details of the evaluation output will be printed to the file `P1G1_eval.out`.
 ```
+cd src/
 python plaseval.py eval --pred ../examples/input/pred_bins_1.tsv --gt ../examples/input/gt_bins_1.tsv --out_file ../examples/output/P1G1_eval.out
 ```
 
 2. The following command evaluates predicted plasmid bins (`pred_bins_1.tsv`) against the other set of ground truth plasmid bins (`gt_bins_2.tsv`), only considering contigs above $1000$ bp. Details of the evaluation output will be printed to the file `P1G2_eval.out`.
 ```
+cd src/
 python plaseval.py eval --pred ../examples/input/pred_bins_1.tsv --gt ../examples/input/gt_bins_2.tsv --min_len 1000 --out_file ../examples/output/P1G2_eval.out
 ```
 
 3. The following command will compare the sets of plasmid bins in `pred_bins_1.tsv` and `gt_bins_1.tsv`. The details of the dissimilarity between the two sets will be output to `P1G1_comp.out` while the log file `P1G1_comp.log` contains the miscellaneous detials.
 ```
+cd src/
 python plaseval.py comp --l ../examples/input/pred_bins_1.tsv --r ../examples/input/gt_bins_1.tsv --out_file ../examples/output/P1G1_comp.out --log_file ../examples/output/P1G1_comp.log
 ```
 
 4. The following command will compare the sets of plasmid bins in `pred_bins_1.tsv` and `pred_bins_2.tsv`, neither of which contains the ground truth. The cost parameter $\alpha$ is set at $0.75$. The details of the dissimilarity between the two sets will be output to `P1P2_comp.out` while the log file `P1P2_comp.log` contains the miscellaneous detials for the comparison. 
 ```
+cd src/
 python plaseval.py comp --l ../examples/input/pred_bins_1.tsv --r ../examples/input/pred_bins_2.tsv --p 0.25 --out_file ../examples/output/P1P2_0.75_comp.out --log_file ../examples/output/P1P2_0.75_comp.log
 ```
