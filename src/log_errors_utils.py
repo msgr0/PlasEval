@@ -46,5 +46,5 @@ def process_warning(msg):
 """ Files and directories function """
 def create_directory(in_dir_list):
     for in_dir in in_dir_list:
-        if not os.path.exists(in_dir):
+        if in_dir and not os.path.exists(in_dir):
             os.makedirs(in_dir)

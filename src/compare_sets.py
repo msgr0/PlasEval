@@ -136,28 +136,29 @@ def modify_partitions(partitions, common):
 			modified_partitions.append(S)				
 	return modified_partitions		
 
-def get_partition_cost(partitions, contigs_dict):
+def get_partition_cost(partitions, contigs_dict, p):
 	'''
 	Input:
 		partitions: List of sets of contigs
 		contigs_dict: Key: contig (str), Value: Nested dictionary: 	length (int), 
 																	L_copies/R_copies (list of contig copies in plasmid set)
 	Returns:
-		Total length of contigs in the partitions and the cost of partitioning
+		Total of (length of contig sets)^p and the cost of partitioning
 	'''	
-	partition_len = 0
-	cost = 0
+	total_len = 0
+	largest_part_cost = 0
 	for S in partitions:
-		S_cost = 0
+		S_len = 0
 		for contig in S:
 			contig_len = contigs_dict[contig.split('_')[0]]['length']
-			partition_len += contig_len
-			S_cost += contig_len
-			cost = max(cost, S_cost)
-	cost = partition_len - cost
-	return partition_len, cost
+			S_len += contig_len
+		S_cost = S_len**p
+		total_len += S_cost
+		largest_part_cost = max(largest_part_cost, S_cost)
+	cost = total_len - largest_part_cost
+	return total_len, cost
 
-def compute_splits_cost(pls_ids, side_contig_copies, opp_contig_copies, B, flag, pls_ids_dict, contigs_dict):
+def compute_splits_cost(pls_ids, side_contig_copies, opp_contig_copies, B, flag, pls_ids_dict, contigs_dict, p):
 	'''
 	Input:
 		pls_ids: List of plasmid ids,
@@ -192,12 +193,12 @@ def compute_splits_cost(pls_ids, side_contig_copies, opp_contig_copies, B, flag,
 				side_contigs, opp_contigs = set(side_ctgs_by_pls[edge[flag]]), set(opp_ctgs_by_pls[edge[1-flag]])
 				common = side_contigs.intersection(opp_contigs)
 				partitions = modify_partitions(partitions, common)
-		node_len, cost = get_partition_cost(partitions,contigs_dict)
+		node_len, cost = get_partition_cost(partitions,contigs_dict,p)
 		side_len += node_len
 		side_cost += cost
 	return side_cost
 
-def compute_match_cost(left_contig_copies, right_contig_copies, pls_ids_dict, contigs_dict):
+def compute_match_cost(left_contig_copies, right_contig_copies, pls_ids_dict, contigs_dict, p):
 	'''
 	Input:
 		List of contig copies, one for each side
@@ -217,11 +218,11 @@ def compute_match_cost(left_contig_copies, right_contig_copies, pls_ids_dict, co
 		left_pls_ids, right_pls_ids = nx.bipartite.sets(C)							#Split the component according to bipartite sets
 		if len(list(right_pls_ids)) != 0 and list(right_pls_ids)[0] in left_pls_set: 	#Ensuring proper assignments of bipartite parts
 			right_pls_ids,left_pls_ids = left_pls_ids,right_pls_ids
-		left_splits_cost += compute_splits_cost(left_pls_ids, left_contig_copies, right_contig_copies, B, 0, pls_ids_dict, contigs_dict)
-		right_splits_cost += compute_splits_cost(right_pls_ids, right_contig_copies, left_contig_copies, B, 1, pls_ids_dict, contigs_dict)
+		left_splits_cost += compute_splits_cost(left_pls_ids, left_contig_copies, right_contig_copies, B, 0, pls_ids_dict, contigs_dict, p)
+		right_splits_cost += compute_splits_cost(right_pls_ids, right_contig_copies, left_contig_copies, B, 1, pls_ids_dict, contigs_dict, p)
 	return left_splits_cost, right_splits_cost	
 
-def compute_current_cost(matching_dict, pls_ids_dict, contigs_dict):
+def compute_current_cost(matching_dict, pls_ids_dict, contigs_dict, p):
 	'''
 	Input:
 		Dictionary of matchings: Key: contig, Value: matching for copies of contig,
@@ -237,9 +238,9 @@ def compute_current_cost(matching_dict, pls_ids_dict, contigs_dict):
 		left_ctg_ids.add(x[0])
 	for x in right_contig_copies:
 		right_ctg_ids.add(x[0])
-	return compute_match_cost(left_contig_copies, right_contig_copies, pls_ids_dict, contigs_dict)
+	return compute_match_cost(left_contig_copies, right_contig_copies, pls_ids_dict, contigs_dict, p)
 
-def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
+def run_compare_plasmids(contigs_dict, pls_ids_dict, p, max_calls, results_file):
 	'''
 	Input:
 		Dictionary of contigs: 
@@ -271,7 +272,9 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 	logger.info(f'Maximum possible matchings: {max_n_matchings}')
 
 	start_time = time.time()
-	if max_n_matchings <= 10000000:
+	#if max_n_matchings <= 10000000:
+	dummy_var = 1
+	if dummy_var == 1:
 		### Branch-N-Bound ###
 		current_state = {'level': 0, 'total_cost': 0, 'matching': {}, 'cuts_cost': 0, 'joins_cost': 0}
 		final_state = {'total_cost': max_cost, 'matching': {}, 'cuts_cost': 0, 'joins_cost': 0}
@@ -304,8 +307,12 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 					matched_posns = get_matching_positions(contigs_dict[current_contig], matching)
 					current_state['matching'][current_contig] = matched_posns
 					count[0] += 1
+					#if count[0] % 10000 == 0:
+					#	print(count[0])
+					if count[0] > max_calls:
+						return None
 					current_state['cuts_cost'], current_state['joins_cost'] \
-						= compute_current_cost(current_state['matching'], pls_ids_dict, contigs_dict)
+						= compute_current_cost(current_state['matching'], pls_ids_dict, contigs_dict, p)
 					current_state['total_cost'] = current_state['cuts_cost'] + current_state['joins_cost']
 					if current_state['total_cost'] < final_state['total_cost']:	
 						current_state['level'] += 1 
@@ -323,17 +330,19 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 		logger.info(f'Time taken: {end_time - start_time}')
 		logger.info(f'Number of function calls: {count[0]}')	
 		
-		total_len, unique_left_cost, unique_right_cost = 0, 0, 0
+		total_len, total_denom, unique_left_cost, unique_right_cost = 0, 0, 0, 0
 		for c in contigs_dict:
 			l_copies, r_copies = len(contigs_dict[c]['L_copies']), len(contigs_dict[c]['R_copies'])
 			ctg_len = contigs_dict[c]['length']
-			if min(l_copies, r_copies) == 0:
-				unique_left_cost += max(l_copies - r_copies, 0) * ctg_len
-				unique_right_cost += max(r_copies - l_copies, 0) * ctg_len
-			total_len += max(l_copies, r_copies) * ctg_len
+			if min(l_copies, r_copies) == 0: #NOTE: This is 0 in order to not penalize extra copies of common contigs
+				unique_left_cost += max(l_copies - r_copies, 0) * (ctg_len**p)
+				unique_right_cost += max(r_copies - l_copies, 0) * (ctg_len**p)
+			total_len += (l_copies + r_copies) * ctg_len
+			total_denom += (l_copies + r_copies) * (ctg_len**p)
 
-		dissimilarity = (unique_left_cost + unique_right_cost + final_state['total_cost']/2)/total_len
+		dissimilarity = (unique_left_cost + unique_right_cost + final_state['total_cost'])/total_denom
 		print("Total_ctg_length\t", total_len)
+		print("Total_ctg_length_alpha\t", total_denom)
 		print("Cuts_cost\t", final_state['cuts_cost'])
 		print("Joins_cost\t", final_state['joins_cost'])
 		print("Unique_left_ctgs\t", unique_left_cost)
@@ -343,6 +352,7 @@ def run_compare_plasmids(contigs_dict, pls_ids_dict, results_file):
 		logger.info(f'{final_state["matching"]}')
 
 		results_file.write("Total_ctg_length\t" + str(total_len) + "\n")
+		results_file.write("Total_ctg_length_alpha\t" + str(total_denom) + "\n")
 		results_file.write("Cuts_cost\t" + str(final_state['cuts_cost']) +"\n")
 		results_file.write("Joins_cost\t" + str(final_state['joins_cost']) +"\n")
 		results_file.write("Unique_left_ctgs\t" + str(unique_left_cost) + "\n")
