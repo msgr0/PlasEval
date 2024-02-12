@@ -28,7 +28,7 @@ def get_plasmid_details(contigs_dict, filename, side, min_len):
 	pls_ctg_df = pd.read_csv(filename, sep='\t')
 
 	for _, row in pls_ctg_df.iterrows():
-		plasmid, contig, length = row['plasmid'], str(row['contig']), row['contig_len']
+		plasmid, contig, length = side+'_'+row['plasmid'], str(row['contig']), row['contig_len']
 		if length >= min_len:
 			if contig not in contigs_dict:
 				contigs_dict[contig] = {'length': length, 'L_copies': [], 'R_copies': []}

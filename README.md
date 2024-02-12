@@ -94,7 +94,7 @@ where `LEFT_BINS_TSV` and `RIGHT_BINS_TSV` are TSV files, each with one set of p
 	b. Recall details: For each ground truth bin, for both contig level and basepair level recall, the name of the best matched predicted plasmid bin and the corresponding recall values <br/> 
 	c. Overall contig level and basepair level statistics
 
-3. The output file for the compare mode contains the following information:<br/>
+2. The output file for the compare mode contains the following information:<br/>
 	a. Cumulative length of contigs present in at least one of set of plasmid bins,<br/>
 	b. Cumulative dissimilarity cost of all contigs from (a),<br/>
 	c. Cost of cuts: cost of splitting bins from the first set of plasmid bins,<br/>
@@ -102,3 +102,27 @@ where `LEFT_BINS_TSV` and `RIGHT_BINS_TSV` are TSV files, each with one set of p
 	e. Cumulative length of contigs present only in the first set,<br/>
 	f. Cumulative length of contigs present only in the second set,<br/>
 	g. Dissimilarity score
+
+The compare mode also provides a log file with some other details related to the comparison algorithm. These include the maximum number of matchings possible, the time taken to execute the method, the number of recursive function calls made during the comparison and finally the actual matching between contigs of both sets of plasmid bins that yields the dissimilarity score in the output file described above.
+
+### Example
+Examples for running both the modes of PlasEval has been provided below:
+1. The following command evaluates predicted plasmid bins (`pred_bins_1.tsv`) against the ground truth plasmid bins (`gt_bins_1.tsv`). Details of the evaluation output will be printed to the file `P1G1_eval.out`.
+```
+python plaseval.py eval --pred ../examples/input/pred_bins_1.tsv --gt ../examples/input/gt_bins_1.tsv --out_file ../examples/output/P1G1_eval.out
+```
+
+2. The following command evaluates predicted plasmid bins (`pred_bins_1.tsv`) against the other set of ground truth plasmid bins (`gt_bins_2.tsv`), only considering contigs above $1000$ bp. Details of the evaluation output will be printed to the file `P1G2_eval.out`.
+```
+python plaseval.py eval --pred ../examples/input/pred_bins_1.tsv --gt ../examples/input/gt_bins_2.tsv --min_len 1000 --out_file ../examples/output/P1G2_eval.out
+```
+
+3. The following command will compare the sets of plasmid bins in `pred_bins_1.tsv` and `gt_bins_1.tsv`. The details of the dissimilarity between the two sets will be output to `P1G1_comp.out` while the log file `P1G1_comp.log` contains the miscellaneous detials.
+```
+python plaseval.py comp --l ../examples/input/pred_bins_1.tsv --r ../examples/input/gt_bins_1.tsv --out_file ../examples/output/P1G1_comp.out --log_file ../examples/output/P1G1_comp.log
+```
+
+4. The following command will compare the sets of plasmid bins in `pred_bins_1.tsv` and `pred_bins_2.tsv`, neither of which contains the ground truth. The cost parameter $\alpha$ is set at $0.75$. The details of the dissimilarity between the two sets will be output to `P1P2_comp.out` while the log file `P1P2_comp.log` contains the miscellaneous detials for the comparison. 
+```
+python plaseval.py comp --l ../examples/input/pred_bins_1.tsv --r ../examples/input/pred_bins_2.tsv --p 0.25 --out_file ../examples/output/P1P2_0.75_comp.out --log_file ../examples/output/P1P2_0.75_comp.log
+```
