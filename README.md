@@ -105,8 +105,9 @@ where `LEFT_BINS_TSV` and `RIGHT_BINS_TSV` are TSV files, each with one set of p
 
 The compare mode also provides a log file with some other details related to the comparison algorithm. These include the maximum number of matchings possible, the time taken to execute the method, the number of recursive function calls made during the comparison and finally the actual matching between contigs of both sets of plasmid bins that yields the dissimilarity score in the output file described above.
 
-### Example
-Examples for running both the modes of PlasEval has been provided below:
+### Examples
+A few toy examples to demonstrate the use of PlasEval have been provided in the examples directory.
+
 1. The following command evaluates predicted plasmid bins (`pred_bins_1.tsv`) against the ground truth plasmid bins (`gt_bins_1.tsv`). Details of the evaluation output will be printed to the file `P1G1_eval.out`.
 ```
 python plaseval.py eval --pred ../examples/input/pred_bins_1.tsv --gt ../examples/input/gt_bins_1.tsv --out_file ../examples/output/P1G1_eval.out
