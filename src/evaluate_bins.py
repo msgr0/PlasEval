@@ -185,6 +185,11 @@ def get_bin_details(len_dict, bins_file):
 	pls_dict = {}
 	for _, row in pls_ctg_df.iterrows():
 		plasmid, contig, length = row['plasmid'], str(row['contig']), row['contig_len']
+		try:
+			if "chromosome" in plasmid:
+				continue
+		except:
+			pass
 		len_dict[contig] = length
 		if plasmid not in pls_dict and "chromosome" not in plasmid:
 			pls_dict[plasmid] = []
@@ -211,4 +216,3 @@ def eval_mode(pred_file, gt_file, min_len, output_file):
 	eval_bins(pred_dict, gt_dict, len_dict, min_len, eval_file)
 
 			
-
