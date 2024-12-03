@@ -186,7 +186,7 @@ def get_bin_details(len_dict, bins_file):
 	for _, row in pls_ctg_df.iterrows():
 		plasmid, contig, length = row['plasmid'], str(row['contig']), row['contig_len']
 		len_dict[contig] = length
-		if plasmid not in pls_dict and not plasmid.contains("chromosome"):
+		if plasmid not in pls_dict and "chromosome" not in plasmid:
 			pls_dict[plasmid] = []
 		if contig not in set(pls_dict[plasmid]):
 			pls_dict[plasmid].append(contig)
